@@ -52,8 +52,8 @@ package main
 import (
     "fmt"
 
-    "github.com/shirou/gopsutil/v3/mem"
-    // "github.com/shirou/gopsutil/mem"  // to use v2
+    "github.com/alexwbaule/gopsutil/v3/mem"
+    // "github.com/alexwbaule/gopsutil/mem"  // to use v2
 )
 
 func main() {
@@ -98,7 +98,7 @@ You can set an alternative location to `/proc/N/mountinfo` by setting the
 
 ### Adding settings using `context` (from v3.23.6)
 
-As of v3.23.6, it is now possible to pass a path location using `context`: import `"github.com/shirou/gopsutil/v3/common"` and pass a context with `common.EnvMap` set to `common.EnvKey`, and the location will be used within each function.
+As of v3.23.6, it is now possible to pass a path location using `context`: import `"github.com/alexwbaule/gopsutil/v3/common"` and pass a context with `common.EnvMap` set to `common.EnvKey`, and the location will be used within each function.
 
 ```
 	ctx := context.WithValue(context.Background(), 
