@@ -3,7 +3,7 @@
 set -eu
 
 # this scripts is used when migrating v2 to v3.
-# usage: cd ${GOPATH}/src/github.com/shirou/gopsutil && bash tools/v3migration/v3migration.sh
+# usage: cd ${GOPATH}/src/github.com/alexwbaule/gopsutil && bash tools/v3migration/v3migration.sh
 
 
 

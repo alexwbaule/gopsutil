@@ -10,7 +10,7 @@ import (
 
 	"golang.org/x/sys/unix"
 
-	"github.com/shirou/gopsutil/v3/internal/common"
+	"github.com/alexwbaule/gopsutil/v3/internal/common"
 )
 
 func getHwMemsize() (uint64, error) {
