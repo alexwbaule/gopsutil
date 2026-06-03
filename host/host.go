@@ -161,3 +161,48 @@ func timeSince(ts uint64) uint64 {
 func timeSinceMillis(ts uint64) uint64 {
 	return uint64(time.Now().UnixMilli()) - ts
 }
+
+// FanStat represents a fan speed sensor reading.
+type FanStat struct {
+	SensorKey string  `json:"sensorKey"`
+	Speed     float64 `json:"speed"` // RPM
+}
+
+func (f FanStat) String() string {
+	s, _ := json.Marshal(f)
+	return string(s)
+}
+
+// VoltageStat represents a voltage sensor reading.
+type VoltageStat struct {
+	SensorKey string  `json:"sensorKey"`
+	Voltage   float64 `json:"voltage"` // Volts
+}
+
+func (v VoltageStat) String() string {
+	s, _ := json.Marshal(v)
+	return string(s)
+}
+
+// PowerStat represents a power sensor reading.
+type PowerStat struct {
+	SensorKey string  `json:"sensorKey"`
+	Power     float64 `json:"power"` // Watts
+}
+
+func (p PowerStat) String() string {
+	s, _ := json.Marshal(p)
+	return string(s)
+}
+
+func SensorsFans() ([]FanStat, error) {
+	return SensorsFansWithContext(context.Background())
+}
+
+func SensorsVoltages() ([]VoltageStat, error) {
+	return SensorsVoltagesWithContext(context.Background())
+}
+
+func SensorsPower() ([]PowerStat, error) {
+	return SensorsPowerWithContext(context.Background())
+}

@@ -523,3 +523,178 @@ func optionalValueReadFromFile(filename string) float64 {
 
 	return value
 }
+
+// SensorsFansWithContext returns fan speed readings from hwmon sysfs.
+// Fan values in /sys/class/hwmon/*/fan*_input are in RPM.
+func SensorsFansWithContext(ctx context.Context) ([]FanStat, error) {
+	var files []string
+	var err error
+
+	fans := make([]FanStat, 0)
+
+	if files, err = filepath.Glob(common.HostSysWithContext(ctx, "/class/hwmon/hwmon*/fan*_input")); err != nil {
+		return fans, err
+	}
+	if len(files) == 0 {
+		if files, err = filepath.Glob(common.HostSysWithContext(ctx, "/class/hwmon/hwmon*/device/fan*_input")); err != nil {
+			return fans, err
+		}
+	}
+
+	for _, file := range files {
+		var raw []byte
+		directory := filepath.Dir(file)
+		basename := strings.Split(filepath.Base(file), "_")[0]
+		basepath := filepath.Join(directory, basename)
+
+		// Read label if available
+		label := ""
+		if raw, _ = ioutil.ReadFile(basepath + "_label"); len(raw) != 0 {
+			label = strings.Join(strings.Split(strings.TrimSpace(strings.ToLower(string(raw))), " "), "_")
+		}
+
+		// Read hwmon name
+		name := ""
+		if raw, _ = ioutil.ReadFile(filepath.Join(directory, "name")); len(raw) != 0 {
+			name = strings.TrimSpace(string(raw))
+		}
+
+		// Build sensor key
+		key := name
+		if label != "" {
+			key = name + "_" + label
+		} else {
+			key = name + "_" + basename
+		}
+
+		// Read value (RPM)
+		if raw, err = ioutil.ReadFile(file); err != nil {
+			continue
+		}
+		speed, err := strconv.ParseFloat(strings.TrimSpace(string(raw)), 64)
+		if err != nil {
+			continue
+		}
+
+		fans = append(fans, FanStat{
+SensorKey: key,
+Speed:     speed,
+})
+	}
+
+	return fans, nil
+}
+
+// SensorsVoltagesWithContext returns voltage readings from hwmon sysfs.
+// Voltage values in /sys/class/hwmon/*/in*_input are in milliVolts.
+func SensorsVoltagesWithContext(ctx context.Context) ([]VoltageStat, error) {
+	var files []string
+	var err error
+
+	voltages := make([]VoltageStat, 0)
+
+	if files, err = filepath.Glob(common.HostSysWithContext(ctx, "/class/hwmon/hwmon*/in*_input")); err != nil {
+		return voltages, err
+	}
+	if len(files) == 0 {
+		if files, err = filepath.Glob(common.HostSysWithContext(ctx, "/class/hwmon/hwmon*/device/in*_input")); err != nil {
+			return voltages, err
+		}
+	}
+
+	for _, file := range files {
+		var raw []byte
+		directory := filepath.Dir(file)
+		basename := strings.Split(filepath.Base(file), "_")[0]
+		basepath := filepath.Join(directory, basename)
+
+		label := ""
+		if raw, _ = ioutil.ReadFile(basepath + "_label"); len(raw) != 0 {
+			label = strings.Join(strings.Split(strings.TrimSpace(strings.ToLower(string(raw))), " "), "_")
+		}
+
+		name := ""
+		if raw, _ = ioutil.ReadFile(filepath.Join(directory, "name")); len(raw) != 0 {
+			name = strings.TrimSpace(string(raw))
+		}
+
+		key := name
+		if label != "" {
+			key = name + "_" + label
+		} else {
+			key = name + "_" + basename
+		}
+
+		if raw, err = ioutil.ReadFile(file); err != nil {
+			continue
+		}
+		milliVolts, err := strconv.ParseFloat(strings.TrimSpace(string(raw)), 64)
+		if err != nil {
+			continue
+		}
+
+		voltages = append(voltages, VoltageStat{
+SensorKey: key,
+Voltage:   milliVolts / 1000.0, // Convert mV to V
+})
+	}
+
+	return voltages, nil
+}
+
+// SensorsPowerWithContext returns power readings from hwmon sysfs.
+// Power values in /sys/class/hwmon/*/power*_input are in microWatts.
+func SensorsPowerWithContext(ctx context.Context) ([]PowerStat, error) {
+	var files []string
+	var err error
+
+	powers := make([]PowerStat, 0)
+
+	if files, err = filepath.Glob(common.HostSysWithContext(ctx, "/class/hwmon/hwmon*/power*_input")); err != nil {
+		return powers, err
+	}
+	if len(files) == 0 {
+		if files, err = filepath.Glob(common.HostSysWithContext(ctx, "/class/hwmon/hwmon*/device/power*_input")); err != nil {
+			return powers, err
+		}
+	}
+
+	for _, file := range files {
+		var raw []byte
+		directory := filepath.Dir(file)
+		basename := strings.Split(filepath.Base(file), "_")[0]
+		basepath := filepath.Join(directory, basename)
+
+		label := ""
+		if raw, _ = ioutil.ReadFile(basepath + "_label"); len(raw) != 0 {
+			label = strings.Join(strings.Split(strings.TrimSpace(strings.ToLower(string(raw))), " "), "_")
+		}
+
+		name := ""
+		if raw, _ = ioutil.ReadFile(filepath.Join(directory, "name")); len(raw) != 0 {
+			name = strings.TrimSpace(string(raw))
+		}
+
+		key := name
+		if label != "" {
+			key = name + "_" + label
+		} else {
+			key = name + "_" + basename
+		}
+
+		if raw, err = ioutil.ReadFile(file); err != nil {
+			continue
+		}
+		microWatts, err := strconv.ParseFloat(strings.TrimSpace(string(raw)), 64)
+		if err != nil {
+			continue
+		}
+
+		powers = append(powers, PowerStat{
+SensorKey: key,
+Power:     microWatts / 1000000.0, // Convert µW to W
+})
+	}
+
+	return powers, nil
+}

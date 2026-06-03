@@ -48,3 +48,15 @@ func SensorsTemperaturesWithContext(ctx context.Context) ([]TemperatureStat, err
 func KernelArch() (string, error) {
 	return "", common.ErrNotImplementedError
 }
+
+func SensorsFansWithContext(ctx context.Context) ([]FanStat, error) {
+	return []FanStat{}, common.ErrNotImplementedError
+}
+
+func SensorsVoltagesWithContext(ctx context.Context) ([]VoltageStat, error) {
+	return []VoltageStat{}, common.ErrNotImplementedError
+}
+
+func SensorsPowerWithContext(ctx context.Context) ([]PowerStat, error) {
+	return []PowerStat{}, common.ErrNotImplementedError
+}
