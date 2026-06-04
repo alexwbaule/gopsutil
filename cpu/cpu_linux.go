@@ -158,7 +158,15 @@ func fillMhz(ctx context.Context, value string, c *InfoStat) float64 {
 		// if we encounter errors below such as there are no cpuinfo_max_freq file,
 		// we just ignore. so let Mhz is 0.
 		if err != nil || len(lines) == 0 {
-			return mhz
+			// Fallback: try scaling_cur_freq for "cur" (some AMD CPUs don't have cpuinfo_cur_freq)
+			if value == "cur" {
+				lines, err = common.ReadLines(sysCPUPath(ctx, c.CPU, "cpufreq/scaling_cur_freq"))
+				if err != nil || len(lines) == 0 {
+					return mhz
+				}
+			} else {
+				return mhz
+			}
 		}
 		line, err = strconv.ParseFloat(lines[0], 64)
 		if err != nil {
